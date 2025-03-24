@@ -20,8 +20,6 @@ const Dashboard = () => {
     if (!token) {
       window.location.href = '/login'; // Redirect if not logged in
     }else{
-      apiClient.get('auth/me');
-      console.log(123);
     }
   }, [token]);
 

@@ -65,7 +65,7 @@ exports.handleGoogleCallback = async (req, res) => {
     }
 
     // Generate JWT token to send to the frontend
-    const token = jwt.sign({ id: data.id, email: data.email, role: data.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: id, email: email, role: role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Send the token to the frontend
     res.redirect(`http://localhost:5173/login?token=${token}`);
