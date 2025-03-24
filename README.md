@@ -6,8 +6,8 @@
 
 The application provides features like:
 - Accessing Google Drive files directly from the dashboard
-- Viewing Slack channel messages
-- Viewing Jira issues
+- Managing Slack channel messages
+- Tracking and resolving Jira issues
 
 ---
 
@@ -57,7 +57,6 @@ This project uses **Supabase** for database management. Below are the instructio
 create table if not exists users (
   id uuid default gen_random_uuid() primary key,
   email text unique not null,
-  name text,
   password text,
   role text default 'user',
   created_at timestamp default now()
@@ -68,8 +67,7 @@ create table if not exists google_drive_files (
   id serial primary key,
   file_id text not null unique,
   file_name text not null,
-  modified_time timestamp not null,
-  web_content_link text,
+  modified_time timestamp not null
 );
 
 -- Slack Channels Table
@@ -86,7 +84,6 @@ create table if not exists slack_messages (
   slack_channel_id text references slack_channels(slack_channel_id),
   message_id text unique not null,
   user_id text,
-  user_name text,
   message_text text,
   timestamp timestamp,
   created_at timestamp default now()
@@ -105,7 +102,7 @@ create table if not exists jira_issues (
 );
 
 ```
-4. **Disable RLS:**
+**Disable RLS:**
    - Copy and paste the following SQL queries into the **SQL Editor** and click **RUN** to execute them.
 
   ```sql
@@ -137,7 +134,7 @@ Before setting up the project, make sure you have the following installed:
 1. Clone the repository and navigate to the backend directory:
     ```bash
     git clone https://github.com/furtivegod/Test_Project-Aither.git
-    cd Test_Project-Aither/backend
+    cd test_Project-Aither/backend
     ```
 
 2. Install the backend dependencies:
@@ -155,17 +152,15 @@ Here is a list of all the required environment variables for your **.env** file.
 
 ### 1. **Supabase**
    - **SUPABASE_URL**: Your Supabase instance URL. You can find it in the [Supabase Dashboard](https://app.supabase.io/).
-   - **SUPABASE_ANON_KEY**: The **anon** key from your Supabase project. This can be found in the **API** section of the Supabase dashboard.
-   - **SUPABASE_SERVICE_ROLE_KEY**: The service role key from your Supabase project. This can be found in the **API** section of the Supabase dashboard. This is required to access admin-level functionalities.
-
-### 2. **JWT Secret**
-   - **JWT_SECRET**: This secret key is used to sign JWT tokens. You can generate a random string using a secure method (for example, [randomkeygen.com](https://randomkeygen.com/)).
+   - **SUPABASE_ANON_KEY**: The **anon** key from your Supabase project. This can be found in the **Project Settings/Data API** section of the Supabase dashboard.
+   - **SUPABASE_SERVICE_ROLE_KEY**: The service role key from your Supabase project. This can be found in the **Project Settings/Data API** section of the Supabase dashboard. This is required to access admin-level functionalities.
+   - **JWT Secret**: This secret key is sued to sign JWT tokens, you can generate a random string using a secure mothod or get it in the **Project Settings/Data API** section of the Supabase dashboard.
 
 ### 3. **Slack**
    - **SLACK_OAUTH_TOKEN**: To get the OAuth token for Slack, follow these steps:
      1. Go to [Slack API](https://api.slack.com/apps).
-     2. Create a new app.
-     3. In the **OAuth & Permissions** section add the following user token scopes.
+     2. Create a new app(from scratch) or use existing app.
+     3. In the **OAuth & Permissions** section add the following user token scopes and install to the project.
         - `channels:history`
         - `channels:read`
         - `groups:history`
@@ -183,10 +178,16 @@ Here is a list of all the required environment variables for your **.env** file.
      1. Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security).
      2. Under **API Token**, generate a new token and copy it.
    - **JIRA_EMAIL_ADDRESS**: Your email address registered with Jira.
-   - **JIRA_BASE_URL**: Your Jira instance's base URL, if you login to the jira dashboard, you can see it in the address bar. for example: `https://<your-domain>.atlassian.net`.
+   - **JIRA_BASE_URL**: Your Jira instance's base URL, for example: `https://<your-domain>.atlassian.net`.
 
 ### 5. **Google OAuth**
-   - **GOOGLE_CLIENT_ID**: Create a project in the [Google Developer Console](https://console.developers.google.com/credentials/), in the **Cedentials** section **enable** the **Google Drive API** and **Google OAuth 2.0**, then get your **Client ID**.
+   - **GOOGLE_CLIENT_ID**: Create a project in the [Google Developer Console](https://console.developers.google.com/apis), in the **Cedentials** section create the **Google OAuth 2.0**, then get your **Client ID**.
+      - Make sure that you correctly add URI to the **Authorized JavaScript Origins** and **Authorized redirect URIs**
+      ```
+      This project uses:
+      Authorized JavaScript Origins: http://localhost:5173
+      Authorized redirect URIs: http://localhost:4000/api/auth/google/callback
+      ```
    - **GOOGLE_CLIENT_SECRET**: After creating the project, you will also get your **Client Secret** in the **Credentials** section.
    - **GOOGLE_REDIRECT_URI**: This is the URI that Google will redirect to after authentication. For local development, this will be:
      ```plaintext
@@ -194,7 +195,7 @@ Here is a list of all the required environment variables for your **.env** file.
      ```
 
 ### 6. **Google Service Account**
-   - **GOOGLE_SERVICE_ACCOUNT**: The path to your **Google Service Account JSON file**. This file is required to interact with Google services such as Google Drive. You can get this by creating a Google Service Account in the [Google Cloud Console](https://console.cloud.google.com/) and downloading the JSON credentials.
+   - **GOOGLE_SERVICE_ACCOUNT_KEY**: The path to your **Google Service Account JSON file**. This file is required to interact with Google services such as Google Drive. You can get this by creating a Google Service Account in the [Google Cloud Console](https://console.cloud.google.com/apis).
 
 ### 7.**Google Drive Email**
    - **Google Drive Email**: Your Email that is used in Google Drive
@@ -213,7 +214,7 @@ SLACK_OAUTH_TOKEN=xoxp-<your-slack-oauth-token>
 
 JIRA_API_TOKEN=<your-jira-api-token>
 JIRA_EMAIL_ADDRESS=<your-jira-email-address>
-JIRA_BASE_URL=https://<your-jira-domain>.atlassian.net/rest/api/3
+JIRA_BASE_URL=https://<your-jira-domain>.atlassian.net
 
 GOOGLE_CLIENT_ID=<your-google-client-id>
 GOOGLE_CLIENT_SECRET=<your-google-client-secret>
@@ -269,7 +270,7 @@ The backend will now be running on `http://localhost:4000`.
 
 1. Navigate to the frontend directory:
     ```bash
-    cd Test_Project-Aither/frontend
+    cd test_Project-Aither/frontend
     ```
 
 2. Install the frontend dependencies:
@@ -281,18 +282,18 @@ The backend will now be running on `http://localhost:4000`.
 
 ## Environment Variables (Frontend)
 
-Please add the following variables to your `.env` file in the frontend project:
+Please add the following variables to `.env` file in the frontend project:
 
-- **VITE_APP_APP_ENV**: Set this to `"development"`, `"uat"`, or `"production"` based on your environment.
-- **VITE_APP_API_URL**: Set this to your backend API URL (e.g., `http://localhost:4000/api` for local development).
-- **VITE_APP_GOOGLE_CLIENT_ID**: This should be the **same Google Client ID** used in your backend's Google OAuth setup.
+- **VITE_APP_APP_ENV**: Set this to `"development"`, `"uat"`, or `"production"` based on environment.
+- **VITE_APP_API_URL**: Set this to the backend API URL (e.g., `http://localhost:4000/api` for local development).
+- **VITE_APP_GOOGLE_CLIENT_ID**: This should be the **same Google Client ID** used in the backend's Google OAuth setup.
 
 ### Example `.env` file for Frontend
 
 ```env
 VITE_APP_APP_ENV=development  # "development" | "uat" | "production"
 VITE_APP_API_URL="http://localhost:4000/api"  # Backend API URL
-VITE_APP_GOOGLE_CLIENT_ID=686026557992-34o73tj12nmic2ngjalcfro2smlr50fm.apps.googleusercontent.com  # Google OAuth Client ID
+VITE_APP_GOOGLE_CLIENT_ID=686026557992....  # Google OAuth Client ID
 ```
 
 
@@ -356,16 +357,6 @@ The frontend will now be running on `http://localhost:5173`.
 ### **6. Advanced Notifications and Alerts**
    - As the project grows, so will its **alerting and notification system**. For instance, users will be notified of **new Slack messages**, **new Jira tickets**, or **updates to Google Drive files**. This system will allow teams to stay up-to-date and **respond in real time**, increasing the efficiency of team communication.
 
-
----
-
-## Test
-
-In this project, you can make a test code in **backend/src/__test__** file and run.
-
-```bash
-npm test
-```
 
 ---
 ## License
