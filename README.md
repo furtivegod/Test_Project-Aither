@@ -6,8 +6,8 @@
 
 The application provides features like:
 - Accessing Google Drive files directly from the dashboard
-- Managing Slack channel messages
-- Tracking and resolving Jira issues
+- Viewing Slack channel messages
+- Viewing Jira issues
 
 ---
 
@@ -57,6 +57,7 @@ This project uses **Supabase** for database management. Below are the instructio
 create table if not exists users (
   id uuid default gen_random_uuid() primary key,
   email text unique not null,
+  name text,
   password text,
   role text default 'user',
   created_at timestamp default now()
@@ -67,7 +68,8 @@ create table if not exists google_drive_files (
   id serial primary key,
   file_id text not null unique,
   file_name text not null,
-  modified_time timestamp not null
+  modified_time timestamp not null,
+  web_content_link text,
 );
 
 -- Slack Channels Table
@@ -84,6 +86,7 @@ create table if not exists slack_messages (
   slack_channel_id text references slack_channels(slack_channel_id),
   message_id text unique not null,
   user_id text,
+  user_name text,
   message_text text,
   timestamp timestamp,
   created_at timestamp default now()
@@ -134,7 +137,7 @@ Before setting up the project, make sure you have the following installed:
 1. Clone the repository and navigate to the backend directory:
     ```bash
     git clone https://github.com/furtivegod/Test_Project-Aither.git
-    cd <project-directory>/backend
+    cd Test_Project-Aither/backend
     ```
 
 2. Install the backend dependencies:
@@ -180,10 +183,10 @@ Here is a list of all the required environment variables for your **.env** file.
      1. Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security).
      2. Under **API Token**, generate a new token and copy it.
    - **JIRA_EMAIL_ADDRESS**: Your email address registered with Jira.
-   - **JIRA_BASE_URL**: Your Jira instance's base URL, for example: `https://<your-domain>.atlassian.net`.
+   - **JIRA_BASE_URL**: Your Jira instance's base URL, if you login to the jira dashboard, you can see it in the address bar. for example: `https://<your-domain>.atlassian.net`.
 
 ### 5. **Google OAuth**
-   - **GOOGLE_CLIENT_ID**: Create a project in the [Google Developer Console](https://console.developers.google.com/credentials/), in the **Cedentials** section enable the **Google Drive API** and **Google OAuth 2.0**, then get your **Client ID**.
+   - **GOOGLE_CLIENT_ID**: Create a project in the [Google Developer Console](https://console.developers.google.com/credentials/), in the **Cedentials** section **enable** the **Google Drive API** and **Google OAuth 2.0**, then get your **Client ID**.
    - **GOOGLE_CLIENT_SECRET**: After creating the project, you will also get your **Client Secret** in the **Credentials** section.
    - **GOOGLE_REDIRECT_URI**: This is the URI that Google will redirect to after authentication. For local development, this will be:
      ```plaintext
@@ -266,7 +269,7 @@ The backend will now be running on `http://localhost:4000`.
 
 1. Navigate to the frontend directory:
     ```bash
-    cd <project-directory>/frontend
+    cd Test_Project-Aither/frontend
     ```
 
 2. Install the frontend dependencies:
@@ -278,11 +281,11 @@ The backend will now be running on `http://localhost:4000`.
 
 ## Environment Variables (Frontend)
 
-Please add the following variables to `.env` file in the frontend project:
+Please add the following variables to your `.env` file in the frontend project:
 
-- **VITE_APP_APP_ENV**: Set this to `"development"`, `"uat"`, or `"production"` based on environment.
-- **VITE_APP_API_URL**: Set this to the backend API URL (e.g., `http://localhost:4000/api` for local development).
-- **VITE_APP_GOOGLE_CLIENT_ID**: This should be the **same Google Client ID** used in the backend's Google OAuth setup.
+- **VITE_APP_APP_ENV**: Set this to `"development"`, `"uat"`, or `"production"` based on your environment.
+- **VITE_APP_API_URL**: Set this to your backend API URL (e.g., `http://localhost:4000/api` for local development).
+- **VITE_APP_GOOGLE_CLIENT_ID**: This should be the **same Google Client ID** used in your backend's Google OAuth setup.
 
 ### Example `.env` file for Frontend
 

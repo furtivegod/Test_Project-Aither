@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Path to your service account credentials file
-const SERVICE_ACCOUNT_KEY_PATH = process.env.GOOGLE_SERVICE_ACCOUNT;
+const SERVICE_ACCOUNT_KEY_PATH = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
 
 // Initialize the Google Auth client with the service account
 const auth = new google.auth.GoogleAuth({
