@@ -358,6 +358,16 @@ The frontend will now be running on `http://localhost:5173`.
 
 
 ---
+
+## Test
+
+In this project, you can make a test code in **backend/src/__test__** file and run.
+
+```bash
+npm test
+```
+
+---
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
