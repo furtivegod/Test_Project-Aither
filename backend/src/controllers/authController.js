@@ -15,7 +15,7 @@ const oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 exports.getGoogleAuthUrl = (req, res) => {
   const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline', // Can be changed depending on needs
+    access_type: 'offline',
     scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
   });
   console.log(url);
@@ -43,6 +43,7 @@ exports.handleGoogleCallback = async (req, res) => {
     const { id, email, name} = userInfo.data;
     const role = 'user';
     console.log(id, email, name, role);
+    
     // Check if the user already exists in the database, otherwise create a new user
     const { data, error } = await supabase
       .from('users')

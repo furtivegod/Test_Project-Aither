@@ -15,6 +15,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+
 // Save files metadata to Supabase database
 const saveFilesToSupabase = async (files) => {
     try {
@@ -74,6 +75,7 @@ const saveFilesToSupabase = async (files) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+  
   // Handle the file download
 const downloadFileController = async (req, res) => {
   const { fileId } = req.body;  // Get the file ID from the request body

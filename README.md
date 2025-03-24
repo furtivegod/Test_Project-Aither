@@ -126,14 +126,14 @@ alter table jira_issues disable row level security;
 ### Prerequisites
 
 Before setting up the project, make sure you have the following installed:
-- **Node.js** (v14 or above)
+- **Node.js** (v18 or above)
 - **npm** (Node Package Manager)
 
 ### Backend Setup
 
 1. Clone the repository and navigate to the backend directory:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/furtivegod/Test_Project-Aither.git
     cd <project-directory>/backend
     ```
 
